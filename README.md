@@ -18,17 +18,28 @@
 
 ## 本地运行
 ```bash
-npm install
-npm run dev
+npm install          # 安装项目依赖，会把 next/React Flow 安装到本地 node_modules/.bin
+npm run dev          # 调用 package.json 内置脚本，自动使用本地 next 可执行文件
 ```
 访问 `http://localhost:3000` 查看 Demo。
 
 ### 环境与依赖提示
-- 推荐使用 Node.js 18+；首次运行需先执行 `npm install` 以拉取 Next.js 与 React Flow 相关依赖，否则会出现 `next: command not found`。 
-- 如遇到公司代理/安全策略导致的 403（常见于 `@types/*` 或作用域包），可尝试：
-  - 确认环境变量中的代理配置是否正确，必要时临时删除 `npm config get http-proxy`/`https-proxy`；
+- 推荐使用 Node.js 18+；首次运行必须完成 `npm install`，否则 `npm run dev` 会因为缺少本地 next 可执行文件而提示 “'next' 不是内部或外部命令”。
+- 如果在公司代理/安全策略下遇到 403（常见于 `@types/*` 或作用域包）：
+  - 检查并必要时暂时清空代理配置：`npm config delete http-proxy && npm config delete https-proxy`；
   - 临时切换镜像源：`npm install --registry=https://registry.npmmirror.com`；
-  - 在离线环境下使用本地私有镜像仓库，并将 `.npmrc` 中的 registry 指向可访问的地址。
+  - 在离线环境使用私有镜像仓库，并将 `.npmrc` 的 registry 指向可访问地址。
+
+### 常见问题排查（“next 不是内部或外部命令”）
+1. 确认已经执行过 `npm install`，并且过程中无 403/ENOTFOUND 报错。
+2. 若曾在全局安装 `next`，请删除全局缓存并重试（确保使用项目内版本）：
+   ```bash
+   npm uninstall -g next || true
+   npm cache verify
+   npm install
+   npm run dev
+   ```
+3. Windows 环境如果启用了杀毒/管控软件拦截 npm 写入 `node_modules/.bin`，请在信任名单中放行或使用 WSL/容器环境。
 
 ## 对接真实后端的思路
 - 将 `lib/mockEngine.ts` 的执行逻辑替换为后端调度：接入队列、作业 ID 与实时状态轮询。
