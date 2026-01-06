@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { nanoid } from "nanoid";
-import { Edge } from "react-flow-renderer";
+import { Edge } from "reactflow";
 import { agents } from "./agents";
 import { runWorkflow } from "./mockEngine";
 import {
@@ -19,10 +19,13 @@ interface WorkflowState {
   selected?: string;
   logs: LogEntry[];
   engine: EngineState;
+  setNodes: (nodes: WorkflowNode[]) => void;
   addAgentNode: (agentId: string, position: { x: number; y: number }) => void;
   addHumanNode: (position: { x: number; y: number }) => void;
   updateNode: (id: string, data: Partial<WorkflowNodeData>) => void;
   setEdges: (edges: Edge[]) => void;
+  removeEdge: (edgeId: string) => void;
+  removeNode: (nodeId: string) => void;
   setSelected: (id?: string) => void;
   appendLog: (message: string) => void;
   run: () => Promise<void>;
@@ -61,6 +64,7 @@ export const useWorkflowStore = create<WorkflowState>()(
       selected: undefined,
       logs: [],
       engine: { status: "idle" },
+      setNodes: (nodes) => set({ nodes }),
       addAgentNode: (agentId, position) => {
         const def = agents.find((a) => a.id === agentId);
         const id = nanoid();
@@ -98,6 +102,16 @@ export const useWorkflowStore = create<WorkflowState>()(
           nodes: state.nodes.map((n) => (n.id === id ? { ...n, data: { ...n.data, ...data } } : n))
         })),
       setEdges: (edges) => set({ edges }),
+      removeEdge: (edgeId) =>
+        set((state) => ({
+          edges: state.edges.filter((edge) => edge.id !== edgeId)
+        })),
+      removeNode: (nodeId) =>
+        set((state) => ({
+          nodes: state.nodes.filter((n) => n.id !== nodeId),
+          edges: state.edges.filter((edge) => edge.source !== nodeId && edge.target !== nodeId),
+          selected: state.selected === nodeId ? undefined : state.selected
+        })),
       setSelected: (id) => set({ selected: id }),
       appendLog: (message) =>
         set((state) => ({
@@ -115,6 +129,7 @@ export const useWorkflowStore = create<WorkflowState>()(
         })),
       run: async () => {
         const { nodes, edges } = get();
+        set({ logs: [] });
         get().resetStatuses();
         const callbacks = {
           updateNode: (id: string, data: Partial<WorkflowNodeData>) => get().updateNode(id, data),

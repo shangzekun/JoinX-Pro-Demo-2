@@ -1,4 +1,4 @@
-import { Edge } from "react-flow-renderer";
+import { Edge } from "reactflow";
 import { WorkflowNode } from "./types";
 
 export const formatTime = () => {

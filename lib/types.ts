@@ -1,4 +1,4 @@
-import { Edge, Node } from "react-flow-renderer";
+import { Edge, Node } from "reactflow";
 
 export type AgentStage = "探索" | "验证" | "量产";
 export type NodeKind = "start" | "agent" | "human" | "end";
