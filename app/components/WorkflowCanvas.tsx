@@ -1,17 +1,20 @@
 "use client";
+
 import React, { useCallback } from "react";
 import ReactFlow, {
   addEdge,
   Background,
-  Connection,
   Controls,
   MiniMap,
-  Node,
-  OnConnect,
-  ReactFlowInstance,
+  useNodesState,
   useEdgesState,
-  useNodesState
-} from "react-flow-renderer";
+  type Connection,
+  type Edge,
+  type Node,
+} from "reactflow";
+
+import "reactflow/dist/style.css";
+
 import { useWorkflowStore } from "@/lib/state";
 import { WorkflowNode } from "@/lib/types";
 
